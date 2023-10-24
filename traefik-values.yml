@@ -1,0 +1,40 @@
+service:
+  enabled: true
+  type: LoadBalancer
+  annotations:
+    load-balancer.hetzner.cloud/name: kubelb
+    load-balancer.hetzner.cloud/location: fsn1
+    load-balancer.hetzner.cloud/type: lb11
+    load-balancer.hetzner.cloud/use-private-ip: "true"
+    load-balancer.hetzner.cloud/network-zone: eu-central
+  labels: {}
+  spec: {}
+  loadBalancerSourceRanges: []
+  externalIPs: []
+
+# Create an IngressRoute for the dashboard
+ingressRoute:
+  dashboard:
+    enabled: true
+    matchRule: Host(`dashboard.example.com`)
+    entryPoints: ["websecure"]
+    middlewares:
+      - name: traefik-dashboard-auth
+
+extraObjects:
+  - apiVersion: v1
+    kind: Secret
+    metadata:
+      name: traefik-dashboard-auth-secret
+    type: kubernetes.io/basic-auth
+    stringData:
+      username: admin
+      password: <change password>
+
+  - apiVersion: traefik.io/v1alpha1
+    kind: Middleware
+    metadata:
+      name: traefik-dashboard-auth
+    spec:
+      basicAuth:
+        secret: traefik-dashboard-auth-secret

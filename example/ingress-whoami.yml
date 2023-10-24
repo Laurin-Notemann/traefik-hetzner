@@ -1,0 +1,23 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: whoami-ingress
+  namespace: whoami
+  annotations:
+    cert-manager.io/issuer: "letsencrypt-prod"
+spec:
+  tls:
+  - hosts: 
+    - rememberry.app
+    secretName: tls-whoami-ingress-http
+  rules:
+  - host: rememberry.app
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: whoami
+            port:
+              name: web
